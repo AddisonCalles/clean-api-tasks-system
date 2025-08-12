@@ -8,9 +8,9 @@ import {
   TaskCompletionDate,
   TaskCost,
   TaskStatus,
-  UserId,
   TaskAssignedUsers,
 } from '@tasks/domain/value-objects';
+import { UserId } from '@users/domain/value-objects';
 
 export class Task {
   constructor(

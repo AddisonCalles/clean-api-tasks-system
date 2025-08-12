@@ -3,7 +3,8 @@ import { CreateTaskUseCase } from '@tasks/application/use-cases/create-task.use-
 import { UpdateTaskUseCase } from '@tasks/application/use-cases/update-task.use-case';
 import { DeleteTaskUseCase } from '@tasks/application/use-cases/delete-task.use-case';
 import type { TaskFilterCriteria } from '@tasks/domain/entities';
-import { TaskFilter, TaskId, UserId } from '@tasks/domain/value-objects';
+import { TaskFilter, TaskId } from '@tasks/domain/value-objects';
+import { UserId } from '@users/domain/value-objects';
 import {
   CREATE_TASK_USECASE,
   DELETE_TASK_USECASE,
@@ -26,7 +27,8 @@ import type {
   CreateTaskRequest,
   UpdateTaskRequest,
 } from '@tasks/application/inputs';
-import { HandleDomainExceptions } from '@shared/infrastructure/nestjs/exception.validator';
+import { HandleDomainExceptions } from '@shared/infrastructure/exception.validator';
+import { EntityID } from '@shared/domain/value-objects';
 
 @Injectable()
 export class TaskAPIService {
@@ -81,7 +83,9 @@ export class TaskAPIService {
 
   @HandleDomainExceptions
   async getTaskStatistics(userId?: string): Promise<GetTaskStatisticsResponse> {
-    const userIdValueObject = userId ? new UserId(userId) : undefined;
+    const userIdValueObject = userId
+      ? new UserId(userId as EntityID)
+      : undefined;
     return this.getTaskStatisticsUseCase.execute(userIdValueObject);
   }
 }

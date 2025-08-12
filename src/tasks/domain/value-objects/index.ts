@@ -4,7 +4,6 @@ export { TaskEstimatedHours } from './task-estimated-hours.value-object';
 export { TaskDueDate } from './task-due-date.value-object';
 export { TaskCost } from './task-cost.value-object';
 export { TaskAssignedUsers } from './task-assigned-users.value-object';
-export { UserId } from './user-id.value-object';
 export { TaskId } from './task-id.value-object';
 export { TaskStatus, TaskStatusEnum } from './task-status.value-object';
 export { TaskTimeSpent } from './task-time-spent.value-object';

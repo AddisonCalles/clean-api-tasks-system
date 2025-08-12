@@ -1,6 +1,7 @@
+import { EntityID } from '@shared/domain/value-objects';
 import { ValueObject } from '@shared/domain/value-objects/value-object';
 import { TaskAssignedUsersInvalidException } from '@tasks/domain/exceptions';
-import { UserId } from './user-id.value-object';
+import { UserId } from '@users/domain/value-objects';
 
 export class TaskAssignedUsers extends ValueObject<UserId[]> {
   constructor(value: UserId[]) {
@@ -60,7 +61,7 @@ export class TaskAssignedUsers extends ValueObject<UserId[]> {
   }
 
   public static createFromStrings(userIds: string[]): TaskAssignedUsers {
-    const users = userIds.map((id) => new UserId(id));
+    const users = userIds.map((id) => new UserId(id as EntityID));
     return new TaskAssignedUsers(users);
   }
 }

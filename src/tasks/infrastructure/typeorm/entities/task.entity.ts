@@ -5,9 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  Index,
 } from 'typeorm';
 import { TaskStatusEnum } from '@tasks/domain/value-objects/task-status.value-object';
-
+@Index('idx_task_status', ['status'])
+@Index('idx_task_created_by', ['createdBy'])
+@Index('idx_task_created_at', ['createdAt'])
+@Index('idx_task_updated_at', ['updatedAt'])
+@Index('idx_task_deleted_at', ['deletedAt'])
 @Entity({
   schema: 'tasks',
 })

@@ -1,17 +1,30 @@
 import { Module } from '@nestjs/common';
 import { TaskAPIService } from './services/task-api.service';
 import { TaskController } from './apis/task.controller';
-import { taskRepositoryProviders } from '@tasks/infrastructure/providers/task-repository.providers';
-import { DatabaseModule } from '@shared/infrastructure/nestjs/database.module';
-import { taskUseCaseProviders } from './providers/task-usecases.providers';
+import {
+  createTaskUseCaseProvider,
+  getTaskUseCaseProvider,
+  getTaskStatisticsUseCaseProvider,
+  listTasksUseCaseProvider,
+  updateTaskUseCaseProvider,
+  deleteTaskUseCaseProvider,
+  taskRepositoryProvider,
+} from '@tasks/infrastructure/providers';
+import { DatabaseModule } from '@shared/infrastructure/database.module';
+import { AuthModule } from '@auth/infrastructure/auth.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, AuthModule],
   controllers: [TaskController],
   providers: [
     TaskAPIService,
-    ...taskRepositoryProviders,
-    ...taskUseCaseProviders,
+    createTaskUseCaseProvider,
+    getTaskUseCaseProvider,
+    getTaskStatisticsUseCaseProvider,
+    listTasksUseCaseProvider,
+    updateTaskUseCaseProvider,
+    deleteTaskUseCaseProvider,
+    taskRepositoryProvider,
   ],
 })
 export class TaskModule {}

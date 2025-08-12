@@ -12,7 +12,6 @@ import { Task as TaskModel } from '@tasks/infrastructure/typeorm/entities';
 import { Task, TaskStatistics } from '@tasks/domain/entities';
 import {
   TaskFilter,
-  UserId,
   TaskId,
   TaskDescription,
   TaskTitle,
@@ -24,6 +23,8 @@ import {
   TaskAssignedUsers,
   TaskDueDate,
 } from '@tasks/domain/value-objects';
+import { UserId } from '@users/domain/value-objects';
+import { EntityID } from '@shared/domain/value-objects';
 
 export class TaskRepositoryTypeorm implements TaskRepository {
   constructor(private readonly taskRepository: Repository<TaskModel>) {}
@@ -167,7 +168,7 @@ export class TaskRepositoryTypeorm implements TaskRepository {
       new TaskStatus(taskModel.status),
       new TaskCost(taskModel.cost),
       new TaskAssignedUsers([]), // TODO: new TaskAssignedUsers(taskModel.assignedUsers),
-      new UserId(taskModel.createdBy),
+      new UserId(taskModel.createdBy as EntityID),
       taskModel.createdAt,
       taskModel.updatedAt,
       taskModel.deletedAt,

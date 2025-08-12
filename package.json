@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start --env-file .env",
+    "keys:generate": "node src/auth/infrastructure/scripts/generate-keys.js",
     "start:dev": "nest start --watch --env-file .env",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -17,12 +18,27 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:reset": "npm run db:down && npm run db:up && npm run sleep && npm run migration:revert && npm run migration:run",
+    "db:reset:hard": "npm run db:down && docker volume rm task-api_postgres_data && npm run db:up && npm run sleep && npm run migration:run",
+    "db:build": "docker-compose build --no-cache && npm run db:up && npm run sleep && npm run migration:run",
+    "db:up": "docker-compose up -d postgres",
+    "db:down": "docker-compose down",
+    "typeorm": "ts-node -r ./tsconfig-paths-bootstrap.js ./node_modules/typeorm/cli",
+    "migration:run": "ts-node -r ./tsconfig-paths-bootstrap.js src/shared/infrastructure/scripts/run-migrations.ts",
+    "migration:revert": "ts-node -r ./tsconfig-paths-bootstrap.js src/shared/infrastructure/scripts/revert-migrations.ts",
+    "migration:status": "ts-node -r ./tsconfig-paths-bootstrap.js src/shared/infrastructure/scripts/show-migrations.ts",
+    "migration:generate": "npm run typeorm -- -d src/shared/infrastructure/database.providers.ts migration:generate src/migrations/$0 --no-console",
+    "migration:create": "npm run typeorm -- migration:create src/$0/infrastructure/typeorm/migrations/$0",
+    "sleep": "ts-node -r ./tsconfig-paths-bootstrap.js src/shared/infrastructure/scripts/sleep.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.0.1",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.4.5",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
@@ -43,6 +59,7 @@
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
     "jest": "^30.0.0",
+    "node-rsa": "^1.1.1",
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
@@ -52,22 +69,5 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }

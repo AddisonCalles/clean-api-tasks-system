@@ -16,7 +16,9 @@
     "baseUrl": "./",
     "paths": {
       "@tasks/*": ["src/tasks/*"],
-      "@shared/*": ["src/shared/*"]
+      "@shared/*": ["src/shared/*"],
+      "@users/*": ["src/users/*"],
+      "@auth/*": ["src/auth/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

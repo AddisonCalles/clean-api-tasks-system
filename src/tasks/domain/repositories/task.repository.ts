@@ -1,8 +1,8 @@
 import { Task } from '@tasks/domain/entities';
 import { TaskId } from '@tasks/domain/value-objects/task-id.value-object';
 import { TaskStatistics } from '@tasks/domain/entities';
-import { UserId } from '@tasks/domain/value-objects/user-id.value-object';
 import { TaskFilter } from '@tasks/domain/value-objects/task-filter.value-object';
+import { UserId } from '@users/domain/value-objects';
 
 export interface TaskRepository {
   create(task: Task): Promise<void>;

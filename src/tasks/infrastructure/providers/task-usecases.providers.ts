@@ -13,47 +13,50 @@ export const GET_TASK_STATISTICS_USECASE = 'GET_TASK_STATISTICS_USECASE';
 export const LIST_TASKS_USECASE = 'LIST_TASKS_USECASE';
 export const UPDATE_TASK_USECASE = 'UPDATE_TASK_USECASE';
 export const DELETE_TASK_USECASE = 'DELETE_TASK_USECASE';
-export const taskUseCaseProviders = [
-  {
-    provide: CREATE_TASK_USECASE,
-    useFactory: (taskRepository: TaskRepositoryTypeorm) => {
-      return new CreateTaskUseCase(taskRepository);
-    },
-    inject: [TASK_REPOSITORY_PROVIDER],
+export const createTaskUseCaseProvider = {
+  provide: CREATE_TASK_USECASE,
+  useFactory: (taskRepository: TaskRepositoryTypeorm) => {
+    return new CreateTaskUseCase(taskRepository);
   },
-  {
-    provide: GET_TASK_USECASE,
-    useFactory: (taskRepository: TaskRepositoryTypeorm) => {
-      return new GetTaskUseCase(taskRepository);
-    },
-    inject: [TASK_REPOSITORY_PROVIDER],
+  inject: [TASK_REPOSITORY_PROVIDER],
+};
+
+export const getTaskUseCaseProvider = {
+  provide: GET_TASK_USECASE,
+  useFactory: (taskRepository: TaskRepositoryTypeorm) => {
+    return new GetTaskUseCase(taskRepository);
   },
-  {
-    provide: GET_TASK_STATISTICS_USECASE,
-    useFactory: (taskRepository: TaskRepositoryTypeorm) => {
-      return new GetTaskStatisticsUseCase(taskRepository);
-    },
-    inject: [TASK_REPOSITORY_PROVIDER],
+  inject: [TASK_REPOSITORY_PROVIDER],
+};
+
+export const getTaskStatisticsUseCaseProvider = {
+  provide: GET_TASK_STATISTICS_USECASE,
+  useFactory: (taskRepository: TaskRepositoryTypeorm) => {
+    return new GetTaskStatisticsUseCase(taskRepository);
   },
-  {
-    provide: LIST_TASKS_USECASE,
-    useFactory: (taskRepository: TaskRepositoryTypeorm) => {
-      return new ListTasksUseCase(taskRepository);
-    },
-    inject: [TASK_REPOSITORY_PROVIDER],
+  inject: [TASK_REPOSITORY_PROVIDER],
+};
+
+export const listTasksUseCaseProvider = {
+  provide: LIST_TASKS_USECASE,
+  useFactory: (taskRepository: TaskRepositoryTypeorm) => {
+    return new ListTasksUseCase(taskRepository);
   },
-  {
-    provide: UPDATE_TASK_USECASE,
-    useFactory: (taskRepository: TaskRepositoryTypeorm) => {
-      return new UpdateTaskUseCase(taskRepository);
-    },
-    inject: [TASK_REPOSITORY_PROVIDER],
+  inject: [TASK_REPOSITORY_PROVIDER],
+};
+
+export const updateTaskUseCaseProvider = {
+  provide: UPDATE_TASK_USECASE,
+  useFactory: (taskRepository: TaskRepositoryTypeorm) => {
+    return new UpdateTaskUseCase(taskRepository);
   },
-  {
-    provide: DELETE_TASK_USECASE,
-    useFactory: (taskRepository: TaskRepositoryTypeorm) => {
-      return new DeleteTaskUseCase(taskRepository);
-    },
-    inject: [TASK_REPOSITORY_PROVIDER],
+  inject: [TASK_REPOSITORY_PROVIDER],
+};
+
+export const deleteTaskUseCaseProvider = {
+  provide: DELETE_TASK_USECASE,
+  useFactory: (taskRepository: TaskRepositoryTypeorm) => {
+    return new DeleteTaskUseCase(taskRepository);
   },
-];
+  inject: [TASK_REPOSITORY_PROVIDER],
+};

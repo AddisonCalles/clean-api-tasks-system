@@ -7,10 +7,11 @@ import {
   TaskDueDate,
   TaskCost,
   TaskAssignedUsers,
-  UserId,
 } from '@tasks/domain/value-objects';
+import { UserId } from '@users/domain/value-objects';
 import { CreateTaskResponse } from '@tasks/application/outputs/create-task.response.dto';
 import { CreateTaskRequest } from '@tasks/application/inputs/create-task.request.dto';
+import { EntityID } from '@shared/domain/value-objects';
 export class CreateTaskUseCase {
   constructor(private readonly taskRepository: TaskRepository) {}
 
@@ -18,15 +19,15 @@ export class CreateTaskUseCase {
     request: CreateTaskRequest,
   ): Promise<CreateTaskResponse> {
     // Validar y crear value objects
-    const title = new TaskTitle(request.title);
-    const description = new TaskDescription(request.description);
-    const estimatedHours = new TaskEstimatedHours(request.estimatedHours);
-    const dueDate = new TaskDueDate(request.dueDate);
-    const cost = new TaskCost(request.cost);
+    const title = new TaskTitle(request?.title);
+    const description = new TaskDescription(request?.description);
+    const estimatedHours = new TaskEstimatedHours(request?.estimatedHours);
+    const dueDate = new TaskDueDate(request?.dueDate);
+    const cost = new TaskCost(request?.cost);
     const assignedUsers = TaskAssignedUsers.createFromStrings(
-      request.assignedUserIds,
+      request?.assignedUserIds,
     );
-    const createdBy = new UserId(request.createdBy);
+    const createdBy = new UserId(request?.createdBy as EntityID);
 
     // Crear la tarea usando el factory method
     const task = Task.create(

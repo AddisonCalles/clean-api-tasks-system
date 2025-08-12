@@ -1,4 +1,5 @@
-import { TaskStatus, UserId } from '../value-objects';
+import { TaskStatus } from '../value-objects';
+import { UserId } from '@users/domain/value-objects';
 
 export interface TaskFilterCriteria {
   title?: string;

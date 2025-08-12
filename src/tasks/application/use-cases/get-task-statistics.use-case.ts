@@ -1,6 +1,6 @@
-import { UserId } from '@tasks/domain/value-objects';
 import type { TaskRepository } from '@tasks/domain/repositories/task.repository';
 import { GetTaskStatisticsResponse } from '@tasks/application/outputs';
+import { UserId } from '@users/domain/value-objects';
 
 export class GetTaskStatisticsUseCase {
   constructor(private readonly taskRepository: TaskRepository) {}
