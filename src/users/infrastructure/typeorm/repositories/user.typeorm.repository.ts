@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserRepository } from '@users/domain/repositories';
 import { User as UserModel } from '@users/infrastructure/typeorm/entities';
 import { User } from '@users/domain/entities';
@@ -27,6 +27,22 @@ export class UserRepositoryTypeorm implements UserRepository {
     userModel.deleted_at = user.deletedAt;
 
     await this.userRepository.save(userModel);
+  }
+
+  async getExistingEmails(emails: UserEmail[]): Promise<
+    {
+      email: UserEmail;
+      id: UserId;
+    }[]
+  > {
+    const userEmails = await this.userRepository.find({
+      select: ['email'],
+      where: { email: In(emails.map((email) => email.value)) },
+    });
+    return userEmails.map((userEmail) => ({
+      email: new UserEmail(userEmail.email),
+      id: new UserId(userEmail.id as EntityID),
+    }));
   }
 
   async findById(id: UserId): Promise<User | null> {

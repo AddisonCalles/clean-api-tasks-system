@@ -1,4 +1,4 @@
-import { UserSession } from '@shared/domain/entities/user-session.entity';
+import { UserSession } from '@auth/domain/entities/user-session.entity';
 
 export abstract class SessionManagerPort {
   abstract createSession(

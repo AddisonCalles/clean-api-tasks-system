@@ -14,6 +14,7 @@ import {
 } from '../providers/auth-usecases.providers';
 import { AuthorizeUserUseCase } from '@auth/application/use-cases/authorize-user.use-case';
 import { UserId, PermissionName } from '@users/domain/value-objects';
+import { UserSession } from '@auth/domain/entities/user-session.entity';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -54,12 +55,18 @@ export class PermissionGuard implements CanActivate {
         ),
       });
 
+      // SET USER SESSION IN REQUEST
+      request.userSession = session;
+
       return userPermissions.isAuthorized;
     } catch (error) {
+      console.error('PermissionGuard error:', error);
       if (error instanceof ForbiddenException) {
         throw error;
       }
-      throw new ForbiddenException('Invalid token or session');
+      throw new ForbiddenException(
+        `Invalid token or session: ${error.message}`,
+      );
     }
   }
 

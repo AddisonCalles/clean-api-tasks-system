@@ -3,7 +3,8 @@ import { ValidationException } from '@shared/domain/exceptions';
 
 export type EntityID = `${string}-${string}-${string}-${string}-${string}`;
 
-export const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export class BaseIdValueObject extends ValueObject<EntityID> {
   private readonly _name: string;
@@ -15,10 +16,10 @@ export class BaseIdValueObject extends ValueObject<EntityID> {
   }
 
   private ensureValidFormat(value: EntityID): void {
-    if (!value || value.trim().length === 0) {
+    if (!value || String(value).length === 0) {
       throw new ValidationException(`${this._name} cannot be empty`);
     }
-    if (!value.match(UUID_REGEX)) {
+    if (!String(value).match(UUID_REGEX)) {
       throw new ValidationException(`${this._name} is not a valid UUID`);
     }
   }

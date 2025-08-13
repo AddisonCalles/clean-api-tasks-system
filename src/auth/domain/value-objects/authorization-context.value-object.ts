@@ -39,9 +39,11 @@ export class AuthorizationContext extends ValueObject<{
   }
 
   public hasRequiredPermissions(): boolean {
-    const userPermissionSet = new Set(this.value.userPermissions);
+    const userPermissionSet = new Set(
+      this.value.userPermissions.map((p) => p.value),
+    );
     return this.value.requiredPermissions.every((permission) =>
-      userPermissionSet.has(permission),
+      userPermissionSet.has(permission.value),
     );
   }
 
@@ -58,9 +60,11 @@ export class AuthorizationContext extends ValueObject<{
   }
 
   public getMissingPermissions(): PermissionName[] {
-    const userPermissionSet = new Set(this.value.userPermissions);
-    return this.value.requiredPermissions
-      .map((permission) => permission)
-      .filter((permission) => !userPermissionSet.has(permission));
+    const userPermissionSet = new Set(
+      this.value.userPermissions.map((p) => p.value),
+    );
+    return this.value.requiredPermissions.filter(
+      (permission) => !userPermissionSet.has(permission.value),
+    );
   }
 }

@@ -5,16 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
-  Index,
 } from 'typeorm';
 import { TaskStatusEnum } from '@tasks/domain/value-objects/task-status.value-object';
-@Index('idx_task_status', ['status'])
-@Index('idx_task_created_by', ['createdBy'])
-@Index('idx_task_created_at', ['createdAt'])
-@Index('idx_task_updated_at', ['updatedAt'])
-@Index('idx_task_deleted_at', ['deletedAt'])
+
 @Entity({
   schema: 'tasks',
+  name: 'tasks',
 })
 export class Task {
   @PrimaryGeneratedColumn('uuid')
@@ -40,7 +36,7 @@ export class Task {
     nullable: false,
     default: 0,
   })
-  estimatedHours: number;
+  estimated_hours: number;
 
   @Column({
     type: 'decimal',
@@ -49,19 +45,19 @@ export class Task {
     nullable: false,
     default: 0,
   })
-  timeSpent: number;
+  time_spent: number;
 
   @Column({
     type: 'timestamp',
     nullable: false,
   })
-  dueDate: Date;
+  due_date: Date;
 
   @Column({
     type: 'timestamp',
     nullable: true,
   })
-  completionDate: Date | null;
+  completion_date: Date | null;
 
   @Column({
     type: 'enum',
@@ -84,23 +80,23 @@ export class Task {
     type: 'uuid',
     nullable: false,
   })
-  createdBy: string;
+  created_by: string;
 
   @CreateDateColumn({
     type: 'timestamp',
     nullable: false,
   })
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
     nullable: false,
   })
-  updatedAt: Date;
+  updated_at: Date;
 
   @DeleteDateColumn({
     type: 'timestamp',
     nullable: true,
   })
-  deletedAt: Date | null;
+  deleted_at: Date | null;
 }

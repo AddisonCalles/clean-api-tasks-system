@@ -14,12 +14,14 @@ import {
   PERMISSION_REPOSITORY_PROVIDER,
   ROLE_PERMISSION_REPOSITORY_PROVIDER,
 } from './user-repository.providers';
-import { UserRepositoryTypeorm } from '@users/infrastructure/typeorm/repositories/user.typeorm.repository';
-import { RoleRepositoryTypeorm } from '@users/infrastructure/typeorm/repositories/role.typeorm.repository';
-import { PermissionRepositoryTypeorm } from '@users/infrastructure/typeorm/repositories/permission.typeorm.repository';
-import { RolePermissionRepositoryTypeorm } from '@users/infrastructure/typeorm/repositories/role-permission.typeorm.repository';
 import { PasswordHashBcryptAdapter } from '@users/infrastructure/adapters/password-hash-bcrypt.adapter';
 import { PasswordHashPort } from '@users/application/ports/password-hash.port';
+import {
+  PermissionRepository,
+  RolePermissionRepository,
+  RoleRepository,
+  UserRepository,
+} from '@users/domain/repositories';
 
 export const CREATE_USER_USECASE = 'CREATE_USER_USECASE';
 export const GET_USER_USECASE = 'GET_USER_USECASE';
@@ -42,8 +44,8 @@ export const passwordHashPortProvider = {
 export const createUserUseCaseProvider = {
   provide: CREATE_USER_USECASE,
   useFactory: (
-    userRepository: UserRepositoryTypeorm,
-    roleRepository: RoleRepositoryTypeorm,
+    userRepository: UserRepository,
+    roleRepository: RoleRepository,
     passwordHash: PasswordHashPort,
   ) => {
     return new CreateUserUseCase(userRepository, roleRepository, passwordHash);
@@ -58,8 +60,8 @@ export const createUserUseCaseProvider = {
 export const getUserUseCaseProvider = {
   provide: LIST_USERS_USECASE,
   useFactory: (
-    userRepository: UserRepositoryTypeorm,
-    roleRepository: RoleRepositoryTypeorm,
+    userRepository: UserRepository,
+    roleRepository: RoleRepository,
   ) => {
     return new ListUsersUseCase(userRepository, roleRepository);
   },
@@ -69,8 +71,8 @@ export const getUserUseCaseProvider = {
 export const listUsersUseCaseProvider = {
   provide: GET_USER_USECASE,
   useFactory: (
-    userRepository: UserRepositoryTypeorm,
-    roleRepository: RoleRepositoryTypeorm,
+    userRepository: UserRepository,
+    roleRepository: RoleRepository,
   ) => {
     return new GetUserUseCase(userRepository, roleRepository);
   },
@@ -80,8 +82,8 @@ export const listUsersUseCaseProvider = {
 export const updateUserUseCaseProvider = {
   provide: UPDATE_USER_USECASE,
   useFactory: (
-    userRepository: UserRepositoryTypeorm,
-    roleRepository: RoleRepositoryTypeorm,
+    userRepository: UserRepository,
+    roleRepository: RoleRepository,
     passwordHash: PasswordHashPort,
   ) => {
     return new UpdateUserUseCase(userRepository, roleRepository, passwordHash);
@@ -95,7 +97,7 @@ export const updateUserUseCaseProvider = {
 
 export const deleteUserUseCaseProvider = {
   provide: DELETE_USER_USECASE,
-  useFactory: (userRepository: UserRepositoryTypeorm) => {
+  useFactory: (userRepository: UserRepository) => {
     return new DeleteUserUseCase(userRepository);
   },
   inject: [USER_REPOSITORY_PROVIDER],
@@ -103,7 +105,7 @@ export const deleteUserUseCaseProvider = {
 
 export const createRoleUseCaseProvider = {
   provide: CREATE_ROLE_USECASE,
-  useFactory: (roleRepository: RoleRepositoryTypeorm) => {
+  useFactory: (roleRepository: RoleRepository) => {
     return new CreateRoleUseCase(roleRepository);
   },
   inject: [ROLE_REPOSITORY_PROVIDER],
@@ -112,9 +114,9 @@ export const createRoleUseCaseProvider = {
 export const listRolesUseCaseProvider = {
   provide: LIST_ROLES_USECASE,
   useFactory: (
-    roleRepository: RoleRepositoryTypeorm,
-    rolePermissionRepository: RolePermissionRepositoryTypeorm,
-    permissionRepository: PermissionRepositoryTypeorm,
+    roleRepository: RoleRepository,
+    rolePermissionRepository: RolePermissionRepository,
+    permissionRepository: PermissionRepository,
   ) => {
     return new ListRolesUseCase(
       roleRepository,
@@ -132,9 +134,9 @@ export const listRolesUseCaseProvider = {
 export const assignRolePermissionsUseCaseProvider = {
   provide: ASSIGN_ROLE_PERMISSIONS_USECASE,
   useFactory: (
-    roleRepository: RoleRepositoryTypeorm,
-    permissionRepository: PermissionRepositoryTypeorm,
-    rolePermissionRepository: RolePermissionRepositoryTypeorm,
+    roleRepository: RoleRepository,
+    permissionRepository: PermissionRepository,
+    rolePermissionRepository: RolePermissionRepository,
   ) => {
     return new AssignRolePermissionsUseCase(
       roleRepository,

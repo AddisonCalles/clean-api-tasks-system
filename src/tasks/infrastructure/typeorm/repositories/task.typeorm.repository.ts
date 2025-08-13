@@ -34,16 +34,16 @@ export class TaskRepositoryTypeorm implements TaskRepository {
     taskModel.id = task.id.value;
     taskModel.title = task.title.value;
     taskModel.description = task.description.value;
-    taskModel.estimatedHours = task.estimatedHours.value;
-    taskModel.timeSpent = task.timeSpent.value;
-    taskModel.dueDate = task.dueDate.value;
-    taskModel.completionDate = task.completionDate?.value || null;
+    taskModel.estimated_hours = task.estimatedHours.value;
+    taskModel.time_spent = task.timeSpent.value;
+    taskModel.due_date = task.dueDate.value;
+    taskModel.completion_date = task.completionDate?.value || null;
     taskModel.status = task.status.value;
     taskModel.cost = task.cost.value;
-    taskModel.createdBy = task.createdBy.value;
-    taskModel.createdAt = task.createdAt;
-    taskModel.updatedAt = task.updatedAt;
-    taskModel.deletedAt = task.deletedAt;
+    taskModel.created_by = task.createdBy.value;
+    taskModel.created_at = task.createdAt;
+    taskModel.updated_at = task.updatedAt;
+    taskModel.deleted_at = task.deletedAt;
     await this.taskRepository.save(taskModel);
   }
 
@@ -57,12 +57,12 @@ export class TaskRepositoryTypeorm implements TaskRepository {
   }
 
   async delete(id: TaskId): Promise<void> {
-    await this.taskRepository.update(id.value, { deletedAt: new Date() });
+    await this.taskRepository.update(id.value, { deleted_at: new Date() });
   }
 
   async getUserTaskStatistics(userId: UserId): Promise<TaskStatistics> {
     const tasksResult = await this.taskRepository.find({
-      where: { createdBy: userId.value },
+      where: { created_by: userId.value },
     });
     const tasks = tasksResult.map((taskModel) =>
       this.mapTaskModelToTask(taskModel),
@@ -142,15 +142,15 @@ export class TaskRepositoryTypeorm implements TaskRepository {
     taskModel.id = task.id.value;
     taskModel.title = task.title.value;
     taskModel.description = task.description.value;
-    taskModel.estimatedHours = task.estimatedHours.value;
-    taskModel.timeSpent = task.timeSpent.value;
-    taskModel.dueDate = task.dueDate.value;
-    taskModel.completionDate = task.completionDate?.value || null;
+    taskModel.estimated_hours = task.estimatedHours.value;
+    taskModel.time_spent = task.timeSpent.value;
+    taskModel.due_date = task.dueDate.value;
+    taskModel.completion_date = task.completionDate?.value || null;
     taskModel.status = task.status.value;
     taskModel.cost = task.cost.value;
-    taskModel.createdBy = task.createdBy.value;
-    taskModel.createdAt = task.createdAt;
-    taskModel.updatedAt = task.updatedAt;
+    taskModel.created_by = task.createdBy.value;
+    taskModel.created_at = task.createdAt;
+    taskModel.updated_at = task.updatedAt;
     await this.taskRepository.save(taskModel);
   }
 
@@ -159,19 +159,19 @@ export class TaskRepositoryTypeorm implements TaskRepository {
       new TaskId(taskModel.id),
       new TaskTitle(taskModel.title),
       new TaskDescription(taskModel.description),
-      new TaskEstimatedHours(taskModel.estimatedHours),
-      new TaskTimeSpent(taskModel.timeSpent),
-      new TaskDueDate(taskModel.dueDate),
-      taskModel.completionDate
-        ? new TaskCompletionDate(taskModel.completionDate)
+      new TaskEstimatedHours(taskModel.estimated_hours),
+      new TaskTimeSpent(taskModel.time_spent),
+      new TaskDueDate(taskModel.due_date),
+      taskModel.completion_date
+        ? new TaskCompletionDate(taskModel.completion_date)
         : null,
       new TaskStatus(taskModel.status),
       new TaskCost(taskModel.cost),
       new TaskAssignedUsers([]), // TODO: new TaskAssignedUsers(taskModel.assignedUsers),
-      new UserId(taskModel.createdBy as EntityID),
-      taskModel.createdAt,
-      taskModel.updatedAt,
-      taskModel.deletedAt,
+      new UserId(taskModel.created_by as EntityID),
+      taskModel.created_at,
+      taskModel.updated_at,
+      taskModel.deleted_at,
     );
   }
 }

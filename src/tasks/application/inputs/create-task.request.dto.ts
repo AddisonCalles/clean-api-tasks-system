@@ -5,7 +5,5 @@ export class CreateTaskRequest {
     public readonly estimatedHours: number,
     public readonly dueDate: Date,
     public readonly cost: number,
-    public readonly assignedUserIds: string[],
-    public readonly createdBy: string,
   ) {}
 }

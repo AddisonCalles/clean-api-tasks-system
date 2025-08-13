@@ -1,7 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticateUserUseCase } from '@auth/application/use-cases';
-import { UserRepositoryTypeorm } from '@users/infrastructure/typeorm/repositories/user.typeorm.repository';
 import { RoleRepositoryTypeorm } from '@users/infrastructure/typeorm/repositories/role.typeorm.repository';
 import { RolePermissionRepositoryTypeorm } from '@users/infrastructure/typeorm/repositories/role-permission.typeorm.repository';
 import { PasswordHashBcryptAdapter } from '@users/infrastructure/adapters/password-hash-bcrypt.adapter';
@@ -26,7 +25,7 @@ export const SESSION_MANAGER_PORT = 'SESSION_MANAGER_PORT';
 export const authenticateUserUseCaseProvider: Provider = {
   provide: AUTHENTICATE_USER_USECASE,
   useFactory: (
-    userRepository: UserRepositoryTypeorm,
+    userRepository: UserRepository,
     roleRepository: RoleRepositoryTypeorm,
     rolePermissionRepository: RolePermissionRepositoryTypeorm,
     passwordHash: PasswordHashBcryptAdapter,

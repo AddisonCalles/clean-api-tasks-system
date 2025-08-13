@@ -20,7 +20,7 @@ import { authorizeUserUseCaseProvider } from './providers/auth-usecases.provider
       privateKey: fs.readFileSync(path.join(__dirname, 'keys', 'private.key')),
       publicKey: fs.readFileSync(path.join(__dirname, 'keys', 'public.key')),
       signOptions: {
-        expiresIn: '60s',
+        expiresIn: '60m',
         algorithm: 'RS256',
       },
     }),

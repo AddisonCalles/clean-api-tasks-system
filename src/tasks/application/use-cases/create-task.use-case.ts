@@ -12,11 +12,13 @@ import { UserId } from '@users/domain/value-objects';
 import { CreateTaskResponse } from '@tasks/application/outputs/create-task.response.dto';
 import { CreateTaskRequest } from '@tasks/application/inputs/create-task.request.dto';
 import { EntityID } from '@shared/domain/value-objects';
+import { UserSession } from '@auth/domain/entities/user-session.entity';
 export class CreateTaskUseCase {
   constructor(private readonly taskRepository: TaskRepository) {}
 
   public async execute(
     request: CreateTaskRequest,
+    userSession: UserSession,
   ): Promise<CreateTaskResponse> {
     // Validar y crear value objects
     const title = new TaskTitle(request?.title);
@@ -24,10 +26,8 @@ export class CreateTaskUseCase {
     const estimatedHours = new TaskEstimatedHours(request?.estimatedHours);
     const dueDate = new TaskDueDate(request?.dueDate);
     const cost = new TaskCost(request?.cost);
-    const assignedUsers = TaskAssignedUsers.createFromStrings(
-      request?.assignedUserIds,
-    );
-    const createdBy = new UserId(request?.createdBy as EntityID);
+    const assignedUsers = new TaskAssignedUsers([]);
+    const createdBy = new UserId(userSession.getUserId() as EntityID);
 
     // Crear la tarea usando el factory method
     const task = Task.create(

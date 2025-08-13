@@ -7,6 +7,9 @@ export { RoleId } from './role-id.value-object';
 export { RoleName } from './role-name.value-object';
 export { RoleDescription } from './role-description.value-object';
 export { PermissionId } from './permission-id.value-object';
-export { PermissionName } from './permission-name.value-object';
+export {
+  PermissionName,
+  PermissionNameEnum,
+} from './permission-name.value-object';
 export { PermissionDescription } from './permission-description.value-object';
 export { PasswordHash } from './password-hash.value-object';

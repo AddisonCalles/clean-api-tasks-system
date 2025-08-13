@@ -34,16 +34,17 @@ export class CreateUserTable1754788118467 implements MigrationInterface {
             (uuid_generate_v4(), 'assign_users_task', 'Allows assigning users to tasks', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'view_all_tasks', 'Allows viewing all system tasks', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'manage_users', 'Allows managing system users', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-            (uuid_generate_v4(), 'access_analytics', 'Allows accessing system analytics', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            (uuid_generate_v4(), 'access_analytics', 'Allows accessing system analytics', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'create_user', 'Allows creating new users', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'edit_user', 'Allows editing existing users', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'delete_user', 'Allows deleting users', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'view_user', 'Allows viewing users', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+            (uuid_generate_v4(), 'view_task', 'Allows viewing users tasks', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'view_all_users', 'Allows viewing all users', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+            (uuid_generate_v4(), 'view_roles', 'Allows viewing roles', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'manage_roles', 'Allows managing roles', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'manage_permissions', 'Allows managing permissions', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-            (uuid_generate_v4(), 'manage_role_permissions', 'Allows managing role permissions', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-          ON CONFLICT (name) DO NOTHING;
+            (uuid_generate_v4(), 'manage_role_permissions', 'Allows managing role permissions', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
         `);
 
     // Crear índices basados en la entidad Permission y las consultas del repositorio

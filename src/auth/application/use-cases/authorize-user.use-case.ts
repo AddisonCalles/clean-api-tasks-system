@@ -1,4 +1,3 @@
-import { UserId } from '@users/domain/value-objects/user-id.value-object';
 import { AuthorizationContext } from '@auth/domain/value-objects/authorization-context.value-object';
 import { InsufficientPermissionsException } from '@auth/domain/exceptions/authorization.exception';
 import type { AuthorizeUserRequest } from '@auth/application/inputs/authorize-user.request.dto';
@@ -6,8 +5,6 @@ import type { AuthorizeUserResponse } from '@auth/application/outputs/authorize-
 import { UserRepository } from '@users/domain/repositories/user.repository';
 import { UserNotFoundException } from '@users/domain/exceptions';
 import { RolePermissionRepository } from '@users/domain/repositories';
-import { Permission } from '@users/domain/entities';
-import { PermissionName } from '@users/domain/value-objects';
 
 export class AuthorizeUserUseCase {
   constructor(
@@ -18,7 +15,7 @@ export class AuthorizeUserUseCase {
   public async execute(
     request: AuthorizeUserRequest,
   ): Promise<AuthorizeUserResponse> {
-    const userId = new UserId(request.userId as any);
+    const userId = request.userId;
 
     const user = await this.userRepository.findById(userId);
 

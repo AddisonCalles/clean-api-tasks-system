@@ -7,6 +7,7 @@ export enum PermissionNameEnum {
   DELETE_TASK = 'delete_task',
   ASSIGN_USERS_TASK = 'assign_users_task',
   VIEW_ALL_TASKS = 'view_all_tasks',
+  VIEW_TASK = 'view_task',
   MANAGE_USERS = 'manage_users',
   ACCESS_ANALYTICS = 'access_analytics',
   CREATE_USER = 'create_user',
@@ -17,6 +18,8 @@ export enum PermissionNameEnum {
   MANAGE_ROLES = 'manage_roles',
   MANAGE_PERMISSIONS = 'manage_permissions',
   MANAGE_ROLE_PERMISSIONS = 'manage_role_permissions',
+  CREATE_ROLE = 'create_role',
+  VIEW_ROLES = 'view_roles',
 }
 export class PermissionName extends ValueObject<string> {
   private static readonly VALID_PERMISSIONS = Object.values(

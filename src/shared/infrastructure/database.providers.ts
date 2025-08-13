@@ -1,5 +1,6 @@
 import { Provider } from '@nestjs/common';
 import { taskEntities } from '@tasks/infrastructure/typeorm/entities';
+import { taskMigrations } from '@tasks/infrastructure/typeorm/migrations';
 import { userEntities } from '@users/infrastructure/typeorm/entities';
 import { userMigrations } from '@users/infrastructure/typeorm/migrations';
 import { DataSource, DataSourceOptions } from 'typeorm';
@@ -15,7 +16,7 @@ export const dataSourceOptions: DataSourceOptions = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   entities: [...taskEntities, ...userEntities],
-  migrations: [...userMigrations],
+  migrations: [...userMigrations, ...taskMigrations],
   synchronize: false,
 };
 export const databaseProviders: Provider[] = [
