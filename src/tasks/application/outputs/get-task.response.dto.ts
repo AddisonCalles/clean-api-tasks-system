@@ -1,3 +1,7 @@
+import { ITaskAssignedUser } from '@tasks/domain/value-objects/task-assigned-users.value-object';
+
+export type AssignedUser = ITaskAssignedUser;
+
 export class GetTaskResponse {
   constructor(
     public readonly id: string,
@@ -9,7 +13,7 @@ export class GetTaskResponse {
     public readonly completionDate: Date | null,
     public readonly status: string,
     public readonly cost: number,
-    public readonly assignedUserIds: string[],
+    public readonly assignedUsers: AssignedUser[],
     public readonly createdBy: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,

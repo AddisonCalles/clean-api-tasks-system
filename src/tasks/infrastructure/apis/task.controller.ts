@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -21,7 +22,8 @@ import {
   RequiredUpdateTaskPermissions,
   RequiredViewTaskPermissions,
   RequiredAssignUsersTaskPermissions,
-} from '../decorators/task.decorators';
+  RequiredCompleteTaskPermissions,
+} from '../decorators/task.decorator';
 import { PermissionGuard } from '@auth/infrastructure/guards';
 import type { UpdateTaskUsersRequest } from '@tasks/application/inputs';
 import { UserSession } from '@auth/domain/entities/user-session.entity';
@@ -64,12 +66,18 @@ export class TaskController {
     return this.taskAPIService.updateTask(id, updateTaskRequest);
   }
 
-  @Put('tasks/:id/users')
+  @Patch('tasks/:id/users')
   @RequiredAssignUsersTaskPermissions()
   updateTaskUsers(
     @Param('id') id: string,
     @Body() updateTaskUsersRequest: UpdateTaskUsersRequest,
   ) {
     return this.taskAPIService.updateTaskUsers(id, updateTaskUsersRequest);
+  }
+
+  @Patch('tasks/:id/complete')
+  @RequiredCompleteTaskPermissions()
+  completeTask(@Param('id') id: string) {
+    return this.taskAPIService.completeTask(id);
   }
 }

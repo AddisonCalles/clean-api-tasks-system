@@ -11,6 +11,7 @@ import {
   TaskAssignedUsers,
 } from '@tasks/domain/value-objects';
 import { UserId } from '@users/domain/value-objects';
+import { ITaskAssignedUser } from '../value-objects/task-assigned-users.value-object';
 
 export class Task {
   constructor(
@@ -117,16 +118,6 @@ export class Task {
 
   public assignUsers(newAssignedUsers: TaskAssignedUsers): void {
     this._assignedUsers = newAssignedUsers;
-    this._updatedAt = new Date();
-  }
-
-  public addUser(userId: UserId): void {
-    this._assignedUsers.addUser(userId);
-    this._updatedAt = new Date();
-  }
-
-  public removeUser(userId: UserId): void {
-    this._assignedUsers.removeUser(userId);
     this._updatedAt = new Date();
   }
 
@@ -245,7 +236,7 @@ export class Task {
       completionDate: this._completionDate?.value?.toISOString(),
       status: this._status.value.toString(),
       cost: this._cost.value,
-      assignedUsers: this._assignedUsers.value.map((user) => user.value),
+      assignedUsers: this._assignedUsers.value.map((user) => user.userId),
       createdBy: this._createdBy.value,
       createdAt: this._createdAt?.toISOString(),
       updatedAt: this._updatedAt?.toISOString(),

@@ -9,6 +9,13 @@
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![TypeORM](https://img.shields.io/badge/TypeORM-FE0803.svg?style=for-the-badge&logo=typeorm&logoColor=white)
 ![Jest](https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white)
+
+
+## Documentación OpenAPI
+- **Especificación OpenAPI**: [openapi.yaml](./openapi.yaml)
+
+## Información de permisos:
+- **Documentación**: [README de Auth](./src/auth/README.md)
 ## Description
 
 Este proyecto está construido utilizando el framework NestJS, siguiendo una arquitectura modular y escalable. La aplicación se organiza en módulos independientes para cada dominio principal, como tareas y usuarios, lo que facilita el mantenimiento y la extensión del sistema.

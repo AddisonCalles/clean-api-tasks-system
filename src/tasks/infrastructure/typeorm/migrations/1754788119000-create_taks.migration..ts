@@ -23,11 +23,12 @@ export class CreateTaskTable1754788119000 implements MigrationInterface {
 
     // Crear tabla de relación entre tareas y usuarios asignados
     await queryRunner.query(`
-      CREATE TABLE IF NOT EXISTS tasks.task_assignments (
+      CREATE TABLE IF NOT EXISTS tasks.task_users (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         task_id UUID NOT NULL,
         user_id UUID NOT NULL,
-        assigned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(task_id, user_id)
       )
     `);
@@ -77,17 +78,17 @@ export class CreateTaskTable1754788119000 implements MigrationInterface {
       CREATE INDEX IF NOT EXISTS idx_task_time_spent ON tasks.tasks (time_spent);
     `);
 
-    // Crear índices para la tabla task_assignments
+    // Crear índices para la tabla task_users
     await queryRunner.query(`
-      CREATE INDEX IF NOT EXISTS idx_task_assignment_task_id ON tasks.task_assignments (task_id);
+      CREATE INDEX IF NOT EXISTS idx_task_users_task_id ON tasks.task_users (task_id);
     `);
 
     await queryRunner.query(`
-      CREATE INDEX IF NOT EXISTS idx_task_assignment_user_id ON tasks.task_assignments (user_id);
+      CREATE INDEX IF NOT EXISTS idx_task_users_user_id ON tasks.task_users (user_id);
     `);
 
     await queryRunner.query(`
-      CREATE INDEX IF NOT EXISTS idx_task_assignment_assigned_at ON tasks.task_assignments (assigned_at);
+      CREATE INDEX IF NOT EXISTS idx_task_users_created_at ON tasks.task_users (created_at);
     `);
 
     // Crear clave foránea para tasks.created_by
@@ -99,18 +100,18 @@ export class CreateTaskTable1754788119000 implements MigrationInterface {
       ON DELETE RESTRICT
     `);
 
-    // Crear claves foráneas para task_assignments
+    // Crear claves foráneas para task_users
     await queryRunner.query(`
-      ALTER TABLE tasks.task_assignments 
-      ADD CONSTRAINT fk_task_assignments_task_id 
+      ALTER TABLE tasks.task_users 
+      ADD CONSTRAINT fk_task_users_task_id 
       FOREIGN KEY (task_id) 
       REFERENCES tasks.tasks(id) 
       ON DELETE CASCADE
     `);
 
     await queryRunner.query(`
-      ALTER TABLE tasks.task_assignments 
-      ADD CONSTRAINT fk_task_assignments_user_id 
+      ALTER TABLE tasks.task_users 
+      ADD CONSTRAINT fk_task_users_user_id 
       FOREIGN KEY (user_id) 
       REFERENCES users.users(id) 
       ON DELETE CASCADE
@@ -140,18 +141,18 @@ export class CreateTaskTable1754788119000 implements MigrationInterface {
 
     // Crear índices para consultas de usuarios asignados
     await queryRunner.query(`
-      CREATE INDEX IF NOT EXISTS idx_task_assignment_user_task ON tasks.task_assignments (user_id, task_id);
+      CREATE INDEX IF NOT EXISTS idx_task_users_user_task ON tasks.task_users (user_id, task_id);
     `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Eliminar claves foráneas
     await queryRunner.query(`
-      ALTER TABLE tasks.task_assignments DROP CONSTRAINT IF EXISTS fk_task_assignments_user_id;
+      ALTER TABLE tasks.task_users DROP CONSTRAINT IF EXISTS fk_task_users_user_id;
     `);
 
     await queryRunner.query(`
-      ALTER TABLE tasks.task_assignments DROP CONSTRAINT IF EXISTS fk_task_assignments_task_id;
+      ALTER TABLE tasks.task_users DROP CONSTRAINT IF EXISTS fk_task_users_task_id;
     `);
 
     await queryRunner.query(`
@@ -160,7 +161,7 @@ export class CreateTaskTable1754788119000 implements MigrationInterface {
 
     // Eliminar índices compuestos
     await queryRunner.query(`
-      DROP INDEX IF EXISTS tasks.idx_task_assignment_user_task;
+      DROP INDEX IF EXISTS tasks.idx_task_users_user_task;
     `);
 
     await queryRunner.query(`
@@ -183,17 +184,17 @@ export class CreateTaskTable1754788119000 implements MigrationInterface {
       DROP INDEX IF EXISTS tasks.idx_task_status_due_date;
     `);
 
-    // Eliminar índices de task_assignments
+    // Eliminar índices de task_users
     await queryRunner.query(`
-      DROP INDEX IF EXISTS tasks.idx_task_assignment_assigned_at;
+      DROP INDEX IF EXISTS tasks.idx_task_users_created_at;
     `);
 
     await queryRunner.query(`
-      DROP INDEX IF EXISTS tasks.idx_task_assignment_user_id;
+      DROP INDEX IF EXISTS tasks.idx_task_users_user_id;
     `);
 
     await queryRunner.query(`
-      DROP INDEX IF EXISTS tasks.idx_task_assignment_task_id;
+      DROP INDEX IF EXISTS tasks.idx_task_users_task_id;
     `);
 
     // Eliminar índices de tasks
@@ -243,7 +244,7 @@ export class CreateTaskTable1754788119000 implements MigrationInterface {
 
     // Eliminar tablas
     await queryRunner.query(`
-      DROP TABLE IF EXISTS tasks.task_assignments;
+      DROP TABLE IF EXISTS tasks.task_users;
     `);
 
     await queryRunner.query(`

@@ -6,7 +6,7 @@ import { TaskEstimatedHours } from '@tasks/domain/value-objects/task-estimated-h
 import { TaskDueDate } from '@tasks/domain/value-objects/task-due-date.value-object';
 import { TaskCost } from '@tasks/domain/value-objects/task-cost.value-object';
 import { TaskStatus } from '@tasks/domain/value-objects/task-status.value-object';
-import { TaskAssignedUsers } from '@tasks/domain/value-objects/task-assigned-users.value-object';
+import { TaskAssignedUsers } from '@tasks/domain/value-objects';
 import { UpdateTaskRequest } from '@tasks/application/inputs/update-task.request.dto';
 import { UpdateTaskResponse } from '@tasks/application/outputs/update-task.response.dto';
 import { TaskTimeSpent } from '@tasks/domain/value-objects';
@@ -61,33 +61,29 @@ export class UpdateTaskUseCase {
       task.updateCost(cost);
     }
 
-    if (request.assignedUserIds !== undefined) {
-      const assignedUsers = TaskAssignedUsers.createFromStrings(
-        request.assignedUserIds,
-      );
-      task.assignUsers(assignedUsers);
-    }
-
-    // TODO: Guardar cambios cuando el repositorio tenga el método
     await this.taskRepository.update(task);
 
+    const updatedTask = await this.taskRepository.findById(taskId);
+    if (!updatedTask) {
+      throw new TaskNotFoundException(taskId.value);
+    }
     // Retornar respuesta actualizada
-    return new UpdateTaskResponse(
-      task.id.value,
-      task.title.value,
-      task.description.value,
-      task.estimatedHours.value,
-      task.timeSpent.value,
-      task.dueDate.value,
-      task.completionDate?.value || null,
-      task.status.value,
-      task.cost.value,
-      task.assignedUsers.value.map((user) => user.value),
-      task.createdBy.value,
-      task.createdAt,
-      task.updatedAt,
-      task.isOverdue(),
-      task.getEfficiencyPercentage(),
-    );
+    return {
+      id: updatedTask.id.value,
+      title: updatedTask.title.value,
+      description: updatedTask.description.value,
+      estimatedHours: updatedTask.estimatedHours.value,
+      timeSpent: updatedTask.timeSpent.value,
+      dueDate: updatedTask.dueDate.value,
+      completionDate: updatedTask.completionDate?.value || null,
+      status: updatedTask.status.value,
+      cost: updatedTask.cost.value,
+      assignedUsers: updatedTask.assignedUsers.value,
+      createdBy: updatedTask.createdBy.value,
+      createdAt: updatedTask.createdAt,
+      updatedAt: updatedTask.updatedAt,
+      isOverdue: updatedTask.isOverdue(),
+      efficiencyPercentage: updatedTask.getEfficiencyPercentage(),
+    };
   }
 }

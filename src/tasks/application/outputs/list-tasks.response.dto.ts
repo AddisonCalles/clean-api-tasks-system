@@ -8,7 +8,11 @@ export interface TaskListItem {
   completionDate: Date | null;
   status: string;
   cost: number;
-  assignedUserIds: string[];
+  assignedUsers: {
+    userId: string;
+    email: string;
+    assignedAt: Date;
+  }[];
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;

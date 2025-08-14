@@ -6,4 +6,6 @@ export {
   listTasksUseCaseProvider,
   updateTaskUseCaseProvider,
   deleteTaskUseCaseProvider,
+  completeTaskUseCaseProvider,
+  editAssignedUsersToTaskUseCaseProvider,
 } from './task-usecases.providers';

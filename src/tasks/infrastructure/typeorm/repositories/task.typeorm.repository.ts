@@ -9,6 +9,7 @@ import {
   Repository,
 } from 'typeorm';
 import { Task as TaskModel } from '@tasks/infrastructure/typeorm/entities';
+import { User } from '@users/infrastructure/typeorm/entities';
 import { Task, TaskStatistics } from '@tasks/domain/entities';
 import {
   TaskFilter,
@@ -27,7 +28,10 @@ import { UserId } from '@users/domain/value-objects';
 import { EntityID } from '@shared/domain/value-objects';
 
 export class TaskRepositoryTypeorm implements TaskRepository {
-  constructor(private readonly taskRepository: Repository<TaskModel>) {}
+  constructor(
+    private readonly taskRepository: Repository<TaskModel>,
+    private readonly userRepository: Repository<User>,
+  ) {}
 
   async create(task: Task): Promise<void> {
     const taskModel = new TaskModel();
@@ -51,9 +55,18 @@ export class TaskRepositoryTypeorm implements TaskRepository {
     const taskModel = await this.taskRepository.findOne({
       where: { id: id.value },
     });
+
     if (!taskModel) return null;
 
-    return this.mapTaskModelToTask(taskModel);
+    // Cargar usuarios asignados manualmente usando SQL directo
+    const taskUsers = await this.taskRepository.manager.query(`
+      SELECT tu.*, u.email 
+      FROM tasks.task_users tu 
+      LEFT JOIN users.users u ON tu.user_id = u.id 
+      WHERE tu.task_id = $1
+    `, [id.value]);
+
+    return this.mapTaskModelToTask(taskModel, taskUsers);
   }
 
   async delete(id: TaskId): Promise<void> {
@@ -108,9 +121,28 @@ export class TaskRepositoryTypeorm implements TaskRepository {
       whereClause.createdBy = filter.value.createdBy?.value;
     }
 
-    const taskModels = await this.taskRepository.find({ where: whereClause });
+    const taskModels = await this.taskRepository.find({
+      where: whereClause,
+    });
 
-    return taskModels.map((taskModel) => this.mapTaskModelToTask(taskModel));
+    // Cargar usuarios asignados para todas las tareas usando SQL directo
+    const taskIds = taskModels.map((task) => task.id);
+    let allTaskUsers: any[] = [];
+
+    if (taskIds.length > 0) {
+      const placeholders = taskIds.map((_, index) => `$${index + 1}`).join(',');
+      allTaskUsers = await this.taskRepository.manager.query(`
+        SELECT tu.*, u.email 
+        FROM tasks.task_users tu 
+        LEFT JOIN users.users u ON tu.user_id = u.id 
+        WHERE tu.task_id IN (${placeholders})
+      `, taskIds);
+    }
+
+    return taskModels.map((taskModel) => {
+      const taskUsers = allTaskUsers.filter(tu => tu.task_id === taskModel.id);
+      return this.mapTaskModelToTask(taskModel, taskUsers);
+    });
   }
 
   async getTaskStatistics(): Promise<TaskStatistics> {
@@ -154,7 +186,43 @@ export class TaskRepositoryTypeorm implements TaskRepository {
     await this.taskRepository.save(taskModel);
   }
 
-  private mapTaskModelToTask(taskModel: TaskModel): Task {
+  async assignUsersToTask(taskId: TaskId, userIds: string[]): Promise<void> {
+    // Primero eliminar todas las asignaciones existentes usando SQL directo
+    await this.taskRepository.manager.query(
+      'DELETE FROM tasks.task_users WHERE task_id = $1',
+      [taskId.value],
+    );
+
+    // Luego insertar las nuevas asignaciones usando SQL directo
+    if (userIds.length > 0) {
+      const values = userIds
+        .map(
+          (_, index) =>
+            `($1, $${index + 2}, $${userIds.length + 2}, $${userIds.length + 3})`,
+        )
+        .join(', ');
+
+      const params = [
+        taskId.value,
+        ...userIds,
+        new Date(),
+        new Date(),
+      ];
+
+      await this.taskRepository.manager.query(
+        `INSERT INTO tasks.task_users (task_id, user_id, created_at, updated_at) VALUES ${values}`,
+        params,
+      );
+    }
+  }
+
+  private mapTaskModelToTask(taskModel: TaskModel, taskUsers?: any[]): Task {
+    const assignedUsers = taskUsers?.map((taskUser) => ({
+      userId: taskUser.user_id,
+      email: taskUser.email || '',
+      assignedAt: taskUser.created_at,
+    })) || [];
+
     return Task.reconstitute(
       new TaskId(taskModel.id),
       new TaskTitle(taskModel.title),
@@ -167,7 +235,7 @@ export class TaskRepositoryTypeorm implements TaskRepository {
         : null,
       new TaskStatus(taskModel.status),
       new TaskCost(taskModel.cost),
-      new TaskAssignedUsers([]), // TODO: new TaskAssignedUsers(taskModel.assignedUsers),
+      new TaskAssignedUsers(assignedUsers),
       new UserId(taskModel.created_by as EntityID),
       taskModel.created_at,
       taskModel.updated_at,

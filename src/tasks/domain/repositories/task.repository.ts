@@ -12,4 +12,5 @@ export interface TaskRepository {
   listTasks(request: TaskFilter): Promise<Task[]>;
   getTaskStatistics(): Promise<TaskStatistics>;
   update(task: Task): Promise<void>;
+  assignUsersToTask(taskId: TaskId, userIds: string[]): Promise<void>;
 }

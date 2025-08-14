@@ -19,7 +19,7 @@ export class ListTasksUseCase {
       completionDate: task.completionDate?.value || null,
       status: task.status.value,
       cost: task.cost.value,
-      assignedUserIds: task.assignedUsers.value.map((user) => user.value),
+      assignedUsers: task.assignedUsers.value,
       createdBy: task.createdBy.value,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,

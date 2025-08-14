@@ -20,6 +20,7 @@ export enum PermissionNameEnum {
   MANAGE_ROLE_PERMISSIONS = 'manage_role_permissions',
   CREATE_ROLE = 'create_role',
   VIEW_ROLES = 'view_roles',
+  VIEW_TASK_STATISTICS = 'view_task_statistics',
 }
 export class PermissionName extends ValueObject<string> {
   private static readonly VALID_PERMISSIONS = Object.values(

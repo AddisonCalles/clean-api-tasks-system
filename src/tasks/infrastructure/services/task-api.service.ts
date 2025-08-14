@@ -6,6 +6,7 @@ import type { TaskFilterCriteria } from '@tasks/domain/entities';
 import { TaskFilter, TaskId } from '@tasks/domain/value-objects';
 import { UserEmail, UserId } from '@users/domain/value-objects';
 import {
+  COMPLETE_TASK_USECASE,
   CREATE_TASK_USECASE,
   DELETE_TASK_USECASE,
   EDIT_ASSIGNED_USERS_TO_TASK_USECASE,
@@ -33,6 +34,7 @@ import { EntityID } from '@shared/domain/value-objects';
 import type { UpdateTaskUsersRequest } from '@tasks/application/inputs';
 import { EditAssignedUsersToTaskUseCase } from '@tasks/application/use-cases/assign_task_users.use-case';
 import { UserSession } from '@auth/domain/entities/user-session.entity';
+import { CompleteTaskUseCase } from '@tasks/application/use-cases/complete-task.use-case';
 
 @Injectable()
 export class TaskAPIService {
@@ -51,6 +53,8 @@ export class TaskAPIService {
     private updateTaskUseCase: UpdateTaskUseCase,
     @Inject(EDIT_ASSIGNED_USERS_TO_TASK_USECASE)
     private updateTaskUsersUseCase: EditAssignedUsersToTaskUseCase,
+    @Inject(COMPLETE_TASK_USECASE)
+    private completeTaskUseCase: CompleteTaskUseCase,
   ) {}
 
   @HandleDomainExceptions
@@ -106,5 +110,10 @@ export class TaskAPIService {
       (email) => new UserEmail(email),
     );
     return this.updateTaskUsersUseCase.execute(taskIdValueObject, userEmails);
+  }
+
+  @HandleDomainExceptions
+  async completeTask(taskId: string): Promise<void> {
+    return this.completeTaskUseCase.execute(new TaskId(taskId));
   }
 }

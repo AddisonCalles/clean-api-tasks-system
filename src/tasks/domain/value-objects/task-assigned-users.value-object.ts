@@ -1,15 +1,19 @@
-import { EntityID } from '@shared/domain/value-objects';
 import { ValueObject } from '@shared/domain/value-objects/value-object';
 import { TaskAssignedUsersInvalidException } from '@tasks/domain/exceptions';
-import { UserId } from '@users/domain/value-objects';
 
-export class TaskAssignedUsers extends ValueObject<UserId[]> {
-  constructor(value: UserId[]) {
+export interface ITaskAssignedUser {
+  userId: string;
+  email: string;
+  assignedAt: Date;
+}
+
+export class TaskAssignedUsers extends ValueObject<ITaskAssignedUser[]> {
+  constructor(value: ITaskAssignedUser[]) {
     super(value);
     this.ensureValidFormat(value);
   }
 
-  private ensureValidFormat(value: UserId[]): void {
+  private ensureValidFormat(value: ITaskAssignedUser[]): void {
     if (!Array.isArray(value)) {
       throw new TaskAssignedUsersInvalidException(
         'Assigned users must be an array',
@@ -17,7 +21,7 @@ export class TaskAssignedUsers extends ValueObject<UserId[]> {
     }
 
     // Check for duplicate user IDs
-    const userIds = value.map((user) => user.value);
+    const userIds = value.map((user) => user.userId);
     const uniqueUserIds = new Set(userIds);
     if (userIds.length !== uniqueUserIds.size) {
       throw new TaskAssignedUsersInvalidException(
@@ -26,42 +30,17 @@ export class TaskAssignedUsers extends ValueObject<UserId[]> {
     }
   }
 
-  public addUser(userId: UserId): void {
-    if (!this.hasUser(userId)) {
-      this.value.push(userId);
+  public addUser(user: ITaskAssignedUser): void {
+    if (!this.hasUser(user)) {
+      this.value.push(user);
     }
   }
 
-  public removeUser(userId: UserId): void {
-    this.value = this.value.filter((user) => !user.equals(userId));
+  public removeUser(user: ITaskAssignedUser): void {
+    this.value = this.value.filter((u) => u.userId !== user.userId);
   }
 
-  public hasUser(userId: UserId): boolean {
-    return this.value.some((user) => user.equals(userId));
-  }
-
-  public getCount(): number {
-    return this.value.length;
-  }
-
-  public isEmpty(): boolean {
-    return this.value.length === 0;
-  }
-
-  public toArray(): UserId[] {
-    return [...this.value];
-  }
-
-  public toString(): string {
-    return this.value.map((user) => user.value).join(',');
-  }
-
-  public static create(users: UserId[]): TaskAssignedUsers {
-    return new TaskAssignedUsers(users);
-  }
-
-  public static createFromStrings(userIds: string[]): TaskAssignedUsers {
-    const users = userIds.map((id) => new UserId(id as EntityID));
-    return new TaskAssignedUsers(users);
+  public hasUser(user: ITaskAssignedUser): boolean {
+    return this.value.some((u) => u.userId === user.userId);
   }
 }

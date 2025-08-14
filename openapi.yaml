@@ -1,0 +1,1098 @@
+openapi: 3.0.3
+info:
+  title: Task Management API
+  description: API para gestión de tareas, usuarios y roles con sistema de autorización basado en permisos
+  version: 1.0.0
+  contact:
+    name: Task API Support
+    email: support@taskapi.com
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor de desarrollo
+  - url: https://api.taskapi.com.fake
+    description: Servidor de producción
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ========================================
+  # AUTENTICACIÓN
+  # ========================================
+  /auth/login:
+    post:
+      tags:
+        - Autenticación
+      summary: Iniciar sesión de usuario
+      description: Autentica un usuario y devuelve un token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email del usuario
+                  example: 'usuario@ejemplo.com'
+                password:
+                  type: string
+                  format: password
+                  description: Contraseña del usuario
+                  example: 'password123'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        description: Token JWT
+                      expiresAt:
+                        type: string
+                        format: date-time
+                        description: Fecha de expiración del token
+                  name:
+                    type: string
+                    description: Nombre del usuario
+                  permissions:
+                    type: array
+                    items:
+                      type: string
+                    description: Lista de permisos del usuario
+        '401':
+          description: Credenciales inválidas
+        '422':
+          description: Datos de entrada inválidos
+
+  # ========================================
+  # TAREAS
+  # ========================================
+  /tasks:
+    get:
+      tags:
+        - Tareas
+      summary: Obtener lista de tareas
+      description: Obtiene una lista paginada de tareas con filtros opcionales
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filtrar por estado de la tarea
+          schema:
+            type: string
+            enum: [pending, in_progress, completed, cancelled]
+        - name: assignedUserId
+          in: query
+          description: Filtrar por usuario asignado
+          schema:
+            type: string
+        - name: dueDateFrom
+          in: query
+          description: Filtrar por fecha de vencimiento desde
+          schema:
+            type: string
+            format: date
+        - name: dueDateTo
+          in: query
+          description: Filtrar por fecha de vencimiento hasta
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: Número de página
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Número de elementos por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Lista de tareas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '403':
+          description: No tiene permisos para ver tareas
+        '500':
+          description: Error interno del servidor
+
+    post:
+      tags:
+        - Tareas
+      summary: Crear nueva tarea
+      description: Crea una nueva tarea en el sistema
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - estimatedHours
+                - dueDate
+                - cost
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  description: Título de la tarea
+                  example: 'Implementar autenticación JWT'
+                description:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+                  description: Descripción detallada de la tarea
+                  example: 'Implementar sistema de autenticación usando JWT tokens'
+                estimatedHours:
+                  type: number
+                  minimum: 0
+                  description: Horas estimadas para completar la tarea
+                  example: 8
+                dueDate:
+                  type: string
+                  format: date-time
+                  description: Fecha de vencimiento de la tarea
+                  example: '2024-01-15T23:59:59Z'
+                cost:
+                  type: number
+                  minimum: 0
+                  description: Costo estimado de la tarea
+                  example: 500.00
+      responses:
+        '201':
+          description: Tarea creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Datos de entrada inválidos
+        '403':
+          description: No tiene permisos para crear tareas
+        '422':
+          description: Validación de dominio fallida
+
+  /tasks/{id}:
+    get:
+      tags:
+        - Tareas
+      summary: Obtener tarea por ID
+      description: Obtiene los detalles de una tarea específica
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la tarea
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Tarea obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '403':
+          description: No tiene permisos para ver esta tarea
+        '404':
+          description: Tarea no encontrada
+        '500':
+          description: Error interno del servidor
+
+    put:
+      tags:
+        - Tareas
+      summary: Actualizar tarea
+      description: Actualiza una tarea existente
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la tarea
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  description: Título de la tarea
+                description:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+                  description: Descripción detallada de la tarea
+                estimatedHours:
+                  type: number
+                  minimum: 0
+                  description: Horas estimadas para completar la tarea
+                timeSpent:
+                  type: number
+                  minimum: 0
+                  description: Horas reales gastadas en la tarea
+                dueDate:
+                  type: string
+                  format: date-time
+                  description: Fecha de vencimiento de la tarea
+                status:
+                  type: string
+                  enum: [pending, in_progress, completed, cancelled]
+                  description: Estado de la tarea
+                cost:
+                  type: number
+                  minimum: 0
+                  description: Costo estimado de la tarea
+                assignedUserIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: IDs de usuarios asignados a la tarea
+      responses:
+        '200':
+          description: Tarea actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Datos de entrada inválidos
+        '403':
+          description: No tiene permisos para editar esta tarea
+        '404':
+          description: Tarea no encontrada
+        '422':
+          description: Validación de dominio fallida
+
+  /tasks/{id}/users:
+    patch:
+      tags:
+        - Tareas
+      summary: Asignar usuarios a tarea
+      description: Actualiza los usuarios asignados a una tarea específica
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la tarea
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - assignedUserIds
+              properties:
+                assignedUserIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: IDs de usuarios a asignar a la tarea
+                  example:
+                    [
+                      '123e4567-e89b-12d3-a456-426614174000',
+                      '987fcdeb-51a2-43d1-9f12-345678901234',
+                    ]
+      responses:
+        '200':
+          description: Usuarios asignados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Datos de entrada inválidos
+        '403':
+          description: No tiene permisos para asignar usuarios a tareas
+        '404':
+          description: Tarea no encontrada
+        '422':
+          description: Validación de dominio fallida
+
+  /tasks/{id}/complete:
+    patch:
+      tags:
+        - Tareas
+      summary: Completar tarea
+      description: Marca una tarea como completada
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la tarea
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Tarea completada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '403':
+          description: No tiene permisos para completar tareas
+        '404':
+          description: Tarea no encontrada
+        '422':
+          description: Validación de dominio fallida
+
+  # ========================================
+  # ESTADÍSTICAS
+  # ========================================
+  /statistics/tasks:
+    get:
+      tags:
+        - Estadísticas
+      summary: Obtener estadísticas generales de tareas
+      description: Obtiene estadísticas generales de todas las tareas del sistema
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalTasks:
+                    type: integer
+                    description: Total de tareas en el sistema
+                  completedTasks:
+                    type: integer
+                    description: Total de tareas completadas
+                  pendingTasks:
+                    type: integer
+                    description: Total de tareas pendientes
+                  inProgressTasks:
+                    type: integer
+                    description: Total de tareas en progreso
+                  totalCost:
+                    type: number
+                    description: Costo total de todas las tareas
+                  averageCompletionTime:
+                    type: number
+                    description: Tiempo promedio de completado en horas
+        '403':
+          description: No tiene permisos para acceder a estadísticas
+        '500':
+          description: Error interno del servidor
+
+  /statistics/tasks/user/{userId}:
+    get:
+      tags:
+        - Estadísticas
+      summary: Obtener estadísticas de tareas por usuario
+      description: Obtiene estadísticas de tareas para un usuario específico
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID del usuario
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Estadísticas del usuario obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                    description: ID del usuario
+                  totalAssignedTasks:
+                    type: integer
+                    description: Total de tareas asignadas al usuario
+                  completedTasks:
+                    type: integer
+                    description: Total de tareas completadas por el usuario
+                  pendingTasks:
+                    type: integer
+                    description: Total de tareas pendientes del usuario
+                  totalCost:
+                    type: number
+                    description: Costo total de las tareas del usuario
+                  averageCompletionTime:
+                    type: number
+                    description: Tiempo promedio de completado en horas
+        '403':
+          description: No tiene permisos para acceder a estadísticas
+        '404':
+          description: Usuario no encontrado
+        '500':
+          description: Error interno del servidor
+
+  # ========================================
+  # USUARIOS
+  # ========================================
+  /users:
+    get:
+      tags:
+        - Usuarios
+      summary: Obtener lista de usuarios
+      description: Obtiene una lista paginada de usuarios con filtros opcionales
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          description: Filtrar por nombre de usuario
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Filtrar por email de usuario
+          schema:
+            type: string
+        - name: roleId
+          in: query
+          description: Filtrar por rol de usuario
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          description: Número de página
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Número de elementos por página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Lista de usuarios obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '403':
+          description: No tiene permisos para ver usuarios
+        '500':
+          description: Error interno del servidor
+
+    post:
+      tags:
+        - Usuarios
+      summary: Crear nuevo usuario
+      description: Crea un nuevo usuario en el sistema
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  description: Nombre completo del usuario
+                  example: 'Juan Pérez'
+                email:
+                  type: string
+                  format: email
+                  description: Email del usuario
+                  example: 'juan.perez@ejemplo.com'
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: Contraseña del usuario
+                  example: 'password123'
+      responses:
+        '201':
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Datos de entrada inválidos
+        '403':
+          description: No tiene permisos para crear usuarios
+        '409':
+          description: El email ya está registrado
+        '422':
+          description: Validación de dominio fallida
+
+  /users/{id}:
+    get:
+      tags:
+        - Usuarios
+      summary: Obtener usuario por ID
+      description: Obtiene los detalles de un usuario específico
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Usuario obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: No tiene permisos para ver este usuario
+        '404':
+          description: Usuario no encontrado
+        '500':
+          description: Error interno del servidor
+
+    patch:
+      tags:
+        - Usuarios
+      summary: Actualizar usuario
+      description: Actualiza un usuario existente
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  description: Nombre completo del usuario
+                email:
+                  type: string
+                  format: email
+                  description: Email del usuario
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: Nueva contraseña del usuario
+      responses:
+        '200':
+          description: Usuario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Datos de entrada inválidos
+        '403':
+          description: No tiene permisos para editar este usuario
+        '404':
+          description: Usuario no encontrado
+        '409':
+          description: El email ya está registrado
+        '422':
+          description: Validación de dominio fallida
+
+    delete:
+      tags:
+        - Usuarios
+      summary: Eliminar usuario
+      description: Elimina un usuario del sistema
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Usuario eliminado exitosamente
+        '403':
+          description: No tiene permisos para eliminar usuarios
+        '404':
+          description: Usuario no encontrado
+        '500':
+          description: Error interno del servidor
+
+  # ========================================
+  # ROLES
+  # ========================================
+  /roles:
+    get:
+      tags:
+        - Roles
+      summary: Obtener lista de roles
+      description: Obtiene una lista de todos los roles disponibles
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de roles obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+        '403':
+          description: No tiene permisos para ver roles
+        '500':
+          description: Error interno del servidor
+
+    post:
+      tags:
+        - Roles
+      summary: Crear nuevo rol
+      description: Crea un nuevo rol en el sistema
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - description
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  description: Nombre del rol
+                  example: 'Desarrollador Senior'
+                description:
+                  type: string
+                  minLength: 1
+                  maxLength: 500
+                  description: Descripción del rol
+                  example: 'Rol para desarrolladores con experiencia avanzada'
+      responses:
+        '201':
+          description: Rol creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          description: Datos de entrada inválidos
+        '403':
+          description: No tiene permisos para crear roles
+        '409':
+          description: El nombre del rol ya existe
+        '422':
+          description: Validación de dominio fallida
+
+  /roles/permissions:
+    put:
+      tags:
+        - Roles
+      summary: Asignar permisos a rol
+      description: Asigna o actualiza los permisos de un rol específico
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - roleId
+                - permissionIds
+              properties:
+                roleId:
+                  type: string
+                  format: uuid
+                  description: ID del rol
+                  example: '123e4567-e89b-12d3-a456-426614174000'
+                permissionIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: IDs de los permisos a asignar
+                  example:
+                    [
+                      '987fcdeb-51a2-43d1-9f12-345678901234',
+                      'abcdef12-3456-7890-abcd-ef1234567890',
+                    ]
+      responses:
+        '200':
+          description: Permisos asignados exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roleId:
+                    type: string
+                    format: uuid
+                  permissionIds:
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+        '400':
+          description: Datos de entrada inválidos
+        '403':
+          description: No tiene permisos para gestionar permisos de roles
+        '404':
+          description: Rol o permisos no encontrados
+        '422':
+          description: Validación de dominio fallida
+
+# ========================================
+# COMPONENTES
+# ========================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtenido al autenticarse
+
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único de la tarea
+        title:
+          type: string
+          description: Título de la tarea
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          type: string
+          enum: [pending, in_progress, completed, cancelled]
+          description: Estado actual de la tarea
+        estimatedHours:
+          type: number
+          description: Horas estimadas para completar la tarea
+        timeSpent:
+          type: number
+          description: Horas reales gastadas en la tarea
+        dueDate:
+          type: string
+          format: date-time
+          description: Fecha de vencimiento de la tarea
+        completionDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha de completado de la tarea
+        cost:
+          type: number
+          description: Costo estimado de la tarea
+        assignedUsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+          description: Usuarios asignados a la tarea
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación de la tarea
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización de la tarea
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único del usuario
+        name:
+          type: string
+          description: Nombre completo del usuario
+        email:
+          type: string
+          format: email
+          description: Email del usuario
+        role:
+          $ref: '#/components/schemas/Role'
+          description: Rol asignado al usuario
+        completedTasksCount:
+          type: integer
+          description: Número de tareas completadas por el usuario
+        completedTasksTotalCost:
+          type: number
+          description: Costo total de tareas completadas por el usuario
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación del usuario
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización del usuario
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único del rol
+        name:
+          type: string
+          description: Nombre del rol
+        description:
+          type: string
+          description: Descripción del rol
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+          description: Permisos asignados al rol
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación del rol
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización del rol
+
+    Permission:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único del permiso
+        name:
+          type: string
+          description: Nombre del permiso
+        description:
+          type: string
+          description: Descripción del permiso
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación del permiso
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Página actual
+        limit:
+          type: integer
+          description: Número de elementos por página
+        total:
+          type: integer
+          description: Total de elementos
+        totalPages:
+          type: integer
+          description: Total de páginas
+        hasNext:
+          type: boolean
+          description: Indica si hay página siguiente
+        hasPrev:
+          type: boolean
+          description: Indica si hay página anterior
+
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          description: Código de estado HTTP
+        message:
+          type: string
+          description: Mensaje de error
+        error:
+          type: string
+          description: Tipo de error
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp del error
+        path:
+          type: string
+          description: Ruta donde ocurrió el error
+
+  responses:
+    UnauthorizedError:
+      description: No autenticado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 401
+            message: 'Unauthorized'
+            error: 'Unauthorized'
+            timestamp: '2024-01-01T00:00:00.000Z'
+            path: '/api/tasks'
+
+    ForbiddenError:
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 403
+            message: 'Forbidden - Insufficient permissions'
+            error: 'Forbidden'
+            timestamp: '2024-01-01T00:00:00.000Z'
+            path: '/api/tasks'
+
+    NotFoundError:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 404
+            message: 'Resource not found'
+            error: 'Not Found'
+            timestamp: '2024-01-01T00:00:00.000Z'
+            path: '/api/tasks/123'
+
+    ValidationError:
+      description: Error de validación
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 400
+            message: 'Validation failed'
+            error: 'Bad Request'
+            timestamp: '2024-01-01T00:00:00.000Z'
+            path: '/api/tasks'
+
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            statusCode: 500
+            message: 'Internal server error'
+            error: 'Internal Server Error'
+            timestamp: '2024-01-01T00:00:00.000Z'
+            path: '/api/tasks'
+
+tags:
+  - name: Autenticación
+    description: Endpoints para autenticación de usuarios
+  - name: Tareas
+    description: Gestión de tareas del sistema
+  - name: Estadísticas
+    description: Estadísticas y reportes del sistema
+  - name: Usuarios
+    description: Gestión de usuarios del sistema
+  - name: Roles
+    description: Gestión de roles y permisos

@@ -23,7 +23,7 @@ export class GetTaskUseCase {
       task.completionDate?.value || null,
       task.status.value,
       task.cost.value,
-      task.assignedUsers.value.map((user) => user.value),
+      task.assignedUsers.value,
       task.createdBy.value,
       task.createdAt,
       task.updatedAt,

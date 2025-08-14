@@ -9,6 +9,7 @@ import { EditAssignedUsersToTaskUseCase } from '@tasks/application/use-cases/ass
 import { USER_REPOSITORY_PROVIDER } from '@users/infrastructure/providers';
 import { TaskRepository } from '@tasks/domain/repositories';
 import { UserRepository } from '@users/domain/repositories';
+import { CompleteTaskUseCase } from '@tasks/application/use-cases/complete-task.use-case';
 
 export const CREATE_TASK_USECASE = 'CREATE_TASK_USECASE';
 export const GET_TASK_USECASE = 'GET_TASK_USECASE';
@@ -18,6 +19,7 @@ export const UPDATE_TASK_USECASE = 'UPDATE_TASK_USECASE';
 export const DELETE_TASK_USECASE = 'DELETE_TASK_USECASE';
 export const EDIT_ASSIGNED_USERS_TO_TASK_USECASE =
   'EDIT_ASSIGNED_USERS_TO_TASK_USECASE';
+export const COMPLETE_TASK_USECASE = 'COMPLETE_TASK_USECASE';
 
 export const createTaskUseCaseProvider = {
   provide: CREATE_TASK_USECASE,
@@ -76,4 +78,12 @@ export const editAssignedUsersToTaskUseCaseProvider = {
     return new EditAssignedUsersToTaskUseCase(taskRepository, userRepository);
   },
   inject: [TASK_REPOSITORY_PROVIDER, USER_REPOSITORY_PROVIDER],
+};
+
+export const completeTaskUseCaseProvider = {
+  provide: COMPLETE_TASK_USECASE,
+  useFactory: (taskRepository: TaskRepository) => {
+    return new CompleteTaskUseCase(taskRepository);
+  },
+  inject: [TASK_REPOSITORY_PROVIDER],
 };

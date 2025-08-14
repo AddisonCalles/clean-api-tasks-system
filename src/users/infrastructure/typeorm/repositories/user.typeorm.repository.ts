@@ -36,7 +36,7 @@ export class UserRepositoryTypeorm implements UserRepository {
     }[]
   > {
     const userEmails = await this.userRepository.find({
-      select: ['email'],
+      select: ['email', 'id'],
       where: { email: In(emails.map((email) => email.value)) },
     });
     return userEmails.map((userEmail) => ({

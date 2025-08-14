@@ -17,3 +17,6 @@ export const RequiredViewTaskPermissions = () =>
 
 export const RequiredViewAllTasksPermissions = () =>
   RequirePermissions(PermissionNameEnum.VIEW_ALL_TASKS);
+
+export const RequiredCompleteTaskPermissions = () =>
+  RequirePermissions(PermissionNameEnum.EDIT_TASK);

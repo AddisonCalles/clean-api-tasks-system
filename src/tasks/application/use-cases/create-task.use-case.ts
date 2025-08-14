@@ -51,7 +51,7 @@ export class CreateTaskUseCase {
       task.estimatedHours.value,
       task.dueDate.value,
       task.cost.value,
-      task.assignedUsers.value.map((user) => user.value),
+      task.assignedUsers.value.map((user) => user.userId),
       task.createdBy.value,
       task.createdAt,
     );

@@ -42,6 +42,7 @@ export class CreateUserTable1754788118467 implements MigrationInterface {
             (uuid_generate_v4(), 'view_task', 'Allows viewing users tasks', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'view_all_users', 'Allows viewing all users', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'view_roles', 'Allows viewing roles', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+            (uuid_generate_v4(), 'view_task_statistics', 'Allows viewing task statistics', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'manage_roles', 'Allows managing roles', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'manage_permissions', 'Allows managing permissions', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
             (uuid_generate_v4(), 'manage_role_permissions', 'Allows managing role permissions', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

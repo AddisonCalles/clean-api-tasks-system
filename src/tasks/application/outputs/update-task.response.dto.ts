@@ -1,3 +1,5 @@
+import { ITaskAssignedUser } from '@tasks/domain/value-objects';
+
 export class UpdateTaskResponse {
   constructor(
     public readonly id: string,
@@ -9,7 +11,7 @@ export class UpdateTaskResponse {
     public readonly completionDate: Date | null,
     public readonly status: string,
     public readonly cost: number,
-    public readonly assignedUserIds: string[],
+    public readonly assignedUsers: ITaskAssignedUser[],
     public readonly createdBy: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
